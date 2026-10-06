@@ -10,14 +10,12 @@
 
   <style>
     body { margin: 0; font-family: Arial, sans-serif; }
-
     #registro {
       position: fixed; inset: 0; z-index: 9999;
       background: #1a1a2e; color: #fff;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      padding: 20px; box-sizing: border-box;
-      overflow-y: auto;
+      padding: 20px; box-sizing: border-box; overflow-y: auto;
     }
     #registro h1 { font-size: 22px; text-align: center; margin-bottom: 10px; }
     #registro input[type="text"] {
@@ -34,11 +32,9 @@
     #btnEntrar {
       width: 100%; max-width: 350px; padding: 14px;
       margin-top: 15px; border: none; border-radius: 8px;
-      background: #e94560; color: #fff; font-size: 17px; font-weight: bold;
-      cursor: pointer;
+      background: #e94560; color: #fff; font-size: 17px; font-weight: bold; cursor: pointer;
     }
     #btnEntrar:disabled { background: #555; cursor: not-allowed; }
-    #escenaAR { display: none; }
   </style>
 </head>
 <body>
@@ -46,69 +42,45 @@
   <!-- ===================== PANTALLA DE REGISTRO ===================== -->
   <div id="registro">
     <h1>📸 Registro de Asistencia<br>Exposición Fotográfica</h1>
-
     <input type="text" id="nombre"   placeholder="Nombre completo" />
     <input type="text" id="empleado" placeholder="Número de empleado" />
     <input type="text" id="area"     placeholder="Área de adscripción" />
-
     <div id="aviso">
       <b>Aviso de privacidad:</b> Los datos solicitados son
       <b>meramente informativos y estadísticos</b>. No serán compartidos
       con terceros ni utilizados para ningún fin distinto al registro de
       asistencia a esta exposición.
     </div>
-
     <label class="check-linea">
       <input type="checkbox" id="acepto" />
       <span>He leído y acepto el aviso de privacidad.</span>
     </label>
-
     <button id="btnEntrar" disabled>Entrar a la experiencia AR</button>
   </div>
 
-  <!-- ===================== ESCENA DE REALIDAD AUMENTADA ===================== -->
-  <div id="escenaAR">
-    <a-scene
-      mindar-image="imageTargetSrc: ./targets.mind;"
-      color-space="sRGB" embedded
-      renderer="colorManagement: true, physicallyCorrectLights"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false">
+  <!-- ===================== ESCENA AR (oculta al inicio) ===================== -->
+  <a-scene id="escenaAR"
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;"
+    color-space="sRGB" embedded
+    renderer="colorManagement: true, physicallyCorrectLights"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+    style="display: none;">
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-assets>
-        <!-- 👇 CAMBIA los nombres por los de TUS videos reales -->
-        <video id="v0" src="./luis.mp4"    preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v1" src="./mario.mp4"   preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v2" src="./pepe.mp4"    preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v3" src="./ana.mp4"     preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v4" src="./persona5.mp4" preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v5" src="./persona6.mp4" preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v6" src="./persona7.mp4" preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v7" src="./persona8.mp4" preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v8" src="./persona9.mp4" preload="auto" loop muted playsinline webkit-playsinline></video>
-        <video id="v9" src="./persona10.mp4" preload="auto" loop muted playsinline webkit-playsinline></video>
-      </a-assets>
+    <a-assets>
+      <video id="v0" src="./0.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>
+    </a-assets>
 
-      <!-- 👇 AJUSTA width/height: horizontal = 1 / 0.5625 | vertical = 0.5625 / 1 | cuadrada = 1 / 1 -->
-      <a-entity mindar-image-target="targetIndex: 0"><a-video src="#v0" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 1"><a-video src="#v1" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 2"><a-video src="#v2" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 3"><a-video src="#v3" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 4"><a-video src="#v4" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 5"><a-video src="#v5" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 6"><a-video src="#v6" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 7"><a-video src="#v7" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 8"><a-video src="#v8" width="1" height="0.5625"></a-video></a-entity>
-      <a-entity mindar-image-target="targetIndex: 9"><a-video src="#v9" width="1" height="0.5625"></a-video></a-entity>
+    <a-entity mindar-image-target="targetIndex: 0">
+      <a-video src="#v0" width="1" height="0.5625" position="0 0 0"></a-video>
+    </a-entity>
 
-    </a-scene>
-  </div>
+  </a-scene>
 
-  <!-- ===================== LÓGICA (JavaScript) ===================== -->
+  <!-- ===================== LÓGICA ===================== -->
   <script>
-    // ✅ Tu URL ya está puesta
     const URL_GUARDADO = "https://script.google.com/macros/s/AKfycbyQf0h9k1AD9HjFjatswbhZiYGnDIDL6uOKxhCXgGgGpwbmGM4OmhmVwhcXb-TyJaon/exec";
 
     const nombre   = document.getElementById("nombre");
@@ -116,6 +88,7 @@
     const area     = document.getElementById("area");
     const acepto   = document.getElementById("acepto");
     const btn      = document.getElementById("btnEntrar");
+    const escena   = document.getElementById("escenaAR");
 
     function validar() {
       btn.disabled = !(nombre.value.trim() && empleado.value.trim()
@@ -127,34 +100,34 @@
     btn.addEventListener("click", function () {
       btn.disabled = true;
       btn.textContent = "Registrando...";
-
       const datos = {
         nombre: nombre.value.trim(),
         empleado: empleado.value.trim(),
         area: area.value.trim()
       };
-
       fetch(URL_GUARDADO, {
-        method: "POST",
-        mode: "no-cors",
+        method: "POST", mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos)
-      })
-      .finally(() => {
-        document.getElementById("registro").style.display = "none";
-        document.getElementById("escenaAR").style.display = "block";
-        activarVideosAR();
+      }).finally(() => {
+        iniciarAR();
       });
     });
 
-    function activarVideosAR() {
-      const targets = document.querySelectorAll("[mindar-image-target]");
-      targets.forEach((t) => {
-        const sel = t.querySelector("a-video").getAttribute("src");
-        const el = document.querySelector(sel);
-        t.addEventListener("targetFound", () => el.play());
-        t.addEventListener("targetLost",  () => el.pause());
-      });
+    function iniciarAR() {
+      // Oculta registro y muestra la escena
+      document.getElementById("registro").style.display = "none";
+      escena.style.display = "block";
+
+      // Arranca el sistema AR manualmente (más estable)
+      const sistema = escena.systems["mindar-image-system"];
+      sistema.start();
+
+      // Reproduce el video al detectar la foto
+      const target = document.querySelector("[mindar-image-target]");
+      const video = document.querySelector("#v0");
+      target.addEventListener("targetFound", () => video.play());
+      target.addEventListener("targetLost",  () => video.pause());
     }
   </script>
 
