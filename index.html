@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Exposición con Realidad Aumentada</title>
+  <title>Prueba AR Ferrocarril</title>
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -12,72 +12,29 @@
     * { margin: 0; padding: 0; }
     html, body { width: 100%; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
 
-    #registro {
-      position: fixed; inset: 0; z-index: 9999;
-      background: #1a1a2e; color: #fff;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 20px; box-sizing: border-box; overflow-y: auto;
-    }
-    #registro h1 { font-size: 22px; text-align: center; margin-bottom: 10px; }
-    #registro input[type="text"] {
-      width: 100%; max-width: 350px; padding: 12px;
-      margin: 8px 0; border: none; border-radius: 8px; font-size: 16px;
-      box-sizing: border-box;
-    }
-    #aviso {
-      max-width: 350px; font-size: 13px; color: #bbb;
-      background: #16213e; padding: 12px; border-radius: 8px; margin: 10px 0;
-      line-height: 1.4;
-    }
-    .check-linea { max-width: 350px; display: flex; align-items: flex-start; gap: 8px; font-size: 13px; }
-    #btnEntrar {
-      width: 100%; max-width: 350px; padding: 14px;
-      margin-top: 15px; border: none; border-radius: 8px;
-      background: #e94560; color: #fff; font-size: 17px; font-weight: bold; cursor: pointer;
-    }
-    #btnEntrar:disabled { background: #555; cursor: not-allowed; }
-
-    /* La escena AR ocupa TODA la pantalla */
-    #escenaAR {
-      display: none;
-      position: fixed !important;
-      top: 0; left: 0;
-      width: 100vw !important;
-      height: 100vh !important;
-    }
-
-    /* Mensaje de estado */
     #estado {
       position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
       z-index: 10000; background: rgba(0,0,0,0.7); color: #fff;
       padding: 8px 16px; border-radius: 20px; font-size: 14px;
-      display: none;
+    }
+
+    /* Botón para iniciar (ayuda a desbloquear el video en móviles) */
+    #btnIniciar {
+      position: fixed; inset: 0; z-index: 10001;
+      background: #1a1a2e; color: #fff; border: none;
+      font-size: 22px; font-weight: bold; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 20px;
     }
   </style>
 </head>
 <body>
 
-  <!-- ===================== PANTALLA DE REGISTRO ===================== -->
-  <div id="registro">
-    <h1>📸 Registro de Asistencia<br>Exposición Fotográfica</h1>
-    <input type="text" id="nombre"   placeholder="Nombre completo" />
-    <input type="text" id="empleado" placeholder="Número de empleado" />
-    <input type="text" id="area"     placeholder="Área de adscripción" />
-    <div id="aviso">
-      <b>Aviso de privacidad:</b> Los datos solicitados son
-      <b>meramente informativos y estadísticos</b>. No serán compartidos
-      con terceros ni utilizados para ningún fin distinto al registro de
-      asistencia a esta exposición.
-    </div>
-    <label class="check-linea">
-      <input type="checkbox" id="acepto" />
-      <span>He leído y acepto el aviso de privacidad.</span>
-    </label>
-    <button id="btnEntrar" disabled>Entrar a la experiencia AR</button>
-  </div>
+  <!-- Botón inicial: al tocarlo, se desbloquea el video y arranca la cámara -->
+  <button id="btnIniciar">
+    🚂<br>Toca para iniciar<br>la experiencia AR
+  </button>
 
-  <!-- Mensaje de estado -->
   <div id="estado">🔍 Apunta a la foto...</div>
 
   <!-- ===================== ESCENA AR ===================== -->
@@ -102,73 +59,43 @@
 
   <!-- ===================== LÓGICA ===================== -->
   <script>
-    const URL_GUARDADO = "https://script.google.com/macros/s/AKfycbyQf0h9k1AD9HjFjatswbhZiYGnDIDL6uOKxhCXgGgGpwbmGM4OmhmVwhcXb-TyJaon/exec";
+    const escena  = document.getElementById("escenaAR");
+    const estado  = document.getElementById("estado");
+    const btnIniciar = document.getElementById("btnIniciar");
+    const video   = document.querySelector("#v0");
 
-    const nombre   = document.getElementById("nombre");
-    const empleado = document.getElementById("empleado");
-    const area     = document.getElementById("area");
-    const acepto   = document.getElementById("acepto");
-    const btn      = document.getElementById("btnEntrar");
-    const escena   = document.getElementById("escenaAR");
-    const estado   = document.getElementById("estado");
+    btnIniciar.addEventListener("click", function () {
+      // "Desbloquea" el video reproduciéndolo un instante (truco para móviles)
+      video.play().then(() => { video.pause(); video.currentTime = 0; }).catch(()=>{});
 
-    function validar() {
-      btn.disabled = !(nombre.value.trim() && empleado.value.trim()
-                       && area.value.trim() && acepto.checked);
-    }
-    [nombre, empleado, area].forEach(el => el.addEventListener("input", validar));
-    acepto.addEventListener("change", validar);
-
-    btn.addEventListener("click", function () {
-      btn.disabled = true;
-      btn.textContent = "Registrando...";
-      const datos = {
-        nombre: nombre.value.trim(),
-        empleado: empleado.value.trim(),
-        area: area.value.trim()
-      };
-      fetch(URL_GUARDADO, {
-        method: "POST", mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datos)
-      }).finally(() => {
-        iniciarAR();
-      });
+      btnIniciar.style.display = "none";
+      iniciarAR();
     });
 
     function iniciarAR() {
-      document.getElementById("registro").style.display = "none";
-      escena.style.display = "block";
-      estado.style.display = "block";
-
-      // Esperar a que la escena esté lista y arrancar
-      escena.addEventListener("loaded", () => {
+      const arrancar = () => {
         const sistema = escena.systems["mindar-image-system"];
         sistema.start();
-      });
+      };
+      if (escena.hasLoaded) arrancar();
+      else escena.addEventListener("loaded", arrancar);
 
-      // Si ya estaba cargada, arrancar directo
-      if (escena.hasLoaded) {
-        const sistema = escena.systems["mindar-image-system"];
-        sistema.start();
-      }
-
-      // Detección de la foto
       const target = document.querySelector("[mindar-image-target]");
-      const video = document.querySelector("#v0");
 
       target.addEventListener("targetFound", () => {
-        estado.textContent = "✅ ¡Foto detectada!";
-        video.play();
+        estado.textContent = "✅ ¡Foto detectada! Reproduciendo...";
+        video.play().catch(e => {
+          estado.textContent = "⚠️ Toca la pantalla para ver el video";
+        });
       });
       target.addEventListener("targetLost", () => {
         estado.textContent = "🔍 Apunta a la foto...";
         video.pause();
       });
 
-      // Forzar redimensionado cuando gira el móvil
-      window.addEventListener("resize", () => {
-        if (escena.renderer) escena.renderer.setSize(window.innerWidth, window.innerHeight);
+      // Si el video falla al cargar, avisar
+      video.addEventListener("error", () => {
+        estado.textContent = "❌ Error al cargar el video (revisa 0.mp4)";
       });
     }
   </script>
