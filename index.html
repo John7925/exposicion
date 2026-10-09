@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Prueba AR Ferrocarril</title>
+  <title>Exposición AR</title>
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -11,33 +11,28 @@
   <style>
     * { margin: 0; padding: 0; }
     html, body { width: 100%; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
-
     #estado {
       position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
       z-index: 10000; background: rgba(0,0,0,0.7); color: #fff;
       padding: 8px 16px; border-radius: 20px; font-size: 14px;
     }
-
-    /* Botón para iniciar (ayuda a desbloquear el video en móviles) */
     #btnIniciar {
       position: fixed; inset: 0; z-index: 10001;
       background: #1a1a2e; color: #fff; border: none;
       font-size: 22px; font-weight: bold; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 20px;
+      flex-direction: column; gap: 20px; text-align: center; padding: 20px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Botón inicial: al tocarlo, se desbloquea el video y arranca la cámara -->
   <button id="btnIniciar">
-    🚂<br>Toca para iniciar<br>la experiencia AR
+    🎬<br>Toca para iniciar<br>la experiencia AR
   </button>
 
-  <div id="estado">🔍 Apunta a la foto...</div>
+  <div id="estado">🔍 Apunta a una foto...</div>
 
-  <!-- ===================== ESCENA AR ===================== -->
   <a-scene id="escenaAR"
     mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;"
     color-space="sRGB" embedded
@@ -47,55 +42,72 @@
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <a-assets>
-      <video id="v0" src="./0.mp4" preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"></video>
-    </a-assets>
-
-    <a-entity mindar-image-target="targetIndex: 0">
-      <a-video src="#v0" width="1" height="0.5625" position="0 0 0"></a-video>
-    </a-entity>
+    <!-- Los videos y targets se generan automáticamente abajo -->
+    <a-assets id="assets"></a-assets>
 
   </a-scene>
 
-  <!-- ===================== LÓGICA ===================== -->
   <script>
-    const escena  = document.getElementById("escenaAR");
-    const estado  = document.getElementById("estado");
+    // ================== CONFIGURACIÓN ==================
+    const TOTAL_VIDEOS = 25;   // tus 25 videos (0.mp4 ... 24.mp4)
+    // ===================================================
+
+    const escena = document.getElementById("escenaAR");
+    const estado = document.getElementById("estado");
     const btnIniciar = document.getElementById("btnIniciar");
-    const video   = document.querySelector("#v0");
+    const assets = document.getElementById("assets");
+
+    // Crea los videos y targets automáticamente (sin precargar todo)
+    for (let i = 0; i < TOTAL_VIDEOS; i++) {
+      // Video SIN preload (se carga solo cuando se necesita)
+      const video = document.createElement("video");
+      video.id = "v" + i;
+      video.src = "./" + i + ".mp4";
+      video.setAttribute("preload", "none");       // ← NO precarga (clave para 25 videos)
+      video.setAttribute("loop", "");
+      video.setAttribute("playsinline", "");
+      video.setAttribute("webkit-playsinline", "");
+      video.setAttribute("crossorigin", "anonymous");
+      assets.appendChild(video);
+
+      // Target (foto) vinculado a su video
+      const target = document.createElement("a-entity");
+      target.setAttribute("mindar-image-target", "targetIndex: " + i);
+      const aVideo = document.createElement("a-video");
+      aVideo.setAttribute("src", "#v" + i);
+      aVideo.setAttribute("width", "1");
+      aVideo.setAttribute("height", "0.5625");
+      aVideo.setAttribute("position", "0 0 0");
+      target.appendChild(aVideo);
+      escena.appendChild(target);
+    }
 
     btnIniciar.addEventListener("click", function () {
-      // "Desbloquea" el video reproduciéndolo un instante (truco para móviles)
-      video.play().then(() => { video.pause(); video.currentTime = 0; }).catch(()=>{});
-
       btnIniciar.style.display = "none";
       iniciarAR();
     });
 
     function iniciarAR() {
-      const arrancar = () => {
-        const sistema = escena.systems["mindar-image-system"];
-        sistema.start();
-      };
+      const arrancar = () => escena.systems["mindar-image-system"].start();
       if (escena.hasLoaded) arrancar();
       else escena.addEventListener("loaded", arrancar);
 
-      const target = document.querySelector("[mindar-image-target]");
+      const targets = document.querySelectorAll("[mindar-image-target]");
+      targets.forEach((t) => {
+        const sel = t.querySelector("a-video").getAttribute("src");
+        const video = document.querySelector(sel);
 
-      target.addEventListener("targetFound", () => {
-        estado.textContent = "✅ ¡Foto detectada! Reproduciendo...";
-        video.play().catch(e => {
-          estado.textContent = "⚠️ Toca la pantalla para ver el video";
+        t.addEventListener("targetFound", () => {
+          estado.textContent = "✅ ¡Foto detectada!";
+          video.muted = false;
+          video.play().catch(() => {
+            estado.textContent = "⚠️ Toca la pantalla para el audio";
+          });
         });
-      });
-      target.addEventListener("targetLost", () => {
-        estado.textContent = "🔍 Apunta a la foto...";
-        video.pause();
-      });
-
-      // Si el video falla al cargar, avisar
-      video.addEventListener("error", () => {
-        estado.textContent = "❌ Error al cargar el video (revisa 0.mp4)";
+        t.addEventListener("targetLost", () => {
+          estado.textContent = "🔍 Apunta a una foto...";
+          video.pause();
+        });
       });
     }
   </script>
