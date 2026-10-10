@@ -1,0 +1,9 @@
+{
+  "name": "Exposición AR - JUDC SEDESA",
+  "short_name": "JUDC AR",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "background_color": "#9F2241",
+  "theme_color": "#9F2241",
+  "orientation": "landscape"
+}
