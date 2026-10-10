@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Exposición AR - JUDC SEDESA</title>
 
-  <!-- PWA / App instalable y pantalla completa -->
   <link rel="manifest" href="./manifest.json" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -19,44 +18,43 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; background:#000; }
 
-    /* Oculta el botón VR de A-Frame */
     .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
 
-    /* La cámara de fondo, visible */
     a-scene, .a-canvas, video.a-canvas, #escenaAR {
       position: fixed !important; top: 0; left: 0;
       width: 100vw !important; height: 100vh !important;
       z-index: 1 !important;
     }
 
-    /* ===== PANTALLA INICIAL (colores CDMX) ===== */
+    /* ===== PANTALLA INICIAL ===== */
     #inicio {
       position: fixed; inset: 0; z-index: 10002;
       background: linear-gradient(160deg, #9F2241 0%, #691C32 100%);
       color: #fff;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 28px; gap: 18px;
+      text-align: center; padding: 24px; gap: 14px; overflow-y: auto;
     }
     #inicio .barra-top {
       position: absolute; top: 0; left: 0; width: 100%; height: 8px;
       background: linear-gradient(90deg, #9F2241, #B38E5D, #9F2241);
     }
-    #inicio .logo {
-      font-size: 34px; font-weight: 800; letter-spacing: 3px;
-      color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    }
+    #inicio .logo { font-size: 34px; font-weight: 800; letter-spacing: 3px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
     #inicio .linea { width: 80px; height: 3px; background: #B38E5D; border-radius: 3px; }
     #inicio .titulo { font-size: 17px; font-weight: 700; max-width: 340px; line-height: 1.4; }
     #inicio .dep { font-size: 14px; color: #f0d9c0; max-width: 320px; line-height: 1.4; }
-    #inicio .giro { font-size: 64px; animation: girar 2.2s infinite ease-in-out; margin: 6px 0; }
+    #inicio .giro { font-size: 56px; animation: girar 2.2s infinite ease-in-out; margin: 4px 0; }
     @keyframes girar { 0%,100%{transform:rotate(0)} 50%{transform:rotate(90deg)} }
     #inicio .instru {
-      font-size: 15px; font-weight: 600; max-width: 320px; line-height: 1.4;
-      background: rgba(255,255,255,0.12); padding: 12px 16px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; max-width: 320px; line-height: 1.4;
+      background: rgba(255,255,255,0.12); padding: 10px 14px; border-radius: 10px;
       border: 1px solid #B38E5D;
     }
+    #inicio .creditos {
+      font-size: 10px; color: #e8cdb5; max-width: 320px; line-height: 1.4;
+      border-top: 1px solid rgba(179,142,93,0.5); padding-top: 8px; margin-top: 4px;
+    }
     #btnIniciar {
-      margin-top: 8px; padding: 16px 36px; border: none; border-radius: 12px;
+      margin-top: 6px; padding: 16px 36px; border: none; border-radius: 12px;
       background: #B38E5D; color: #4a1420; font-size: 18px; font-weight: 800; cursor: pointer;
       box-shadow: 0 4px 14px rgba(0,0,0,0.3); letter-spacing: 1px;
     }
@@ -71,27 +69,30 @@
     }
     #marca small { font-weight: normal; font-size: 10px; opacity: .9; }
 
-    /* ===== Estado ===== */
     #estado {
       position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
       z-index: 10000; background: rgba(0,0,0,0.6); color: #fff;
       padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
     }
 
-    /* ===== OVERLAY video pantalla completa ===== */
     #overlay {
       position: fixed; inset: 0; z-index: 10001;
-      background: #000; display: none;
-      align-items: center; justify-content: center;
+      background: #000; display: none; align-items: center; justify-content: center;
     }
     #overlay video { width: 100%; height: 100%; object-fit: contain; background:#000; }
 
-    /* Indicador de carga del video */
+    /* Crédito del autor DURANTE el video */
+    #creditoVideo {
+      position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
+      z-index: 10002; background: rgba(0,0,0,0.6); color: #fff;
+      padding: 6px 14px; border-radius: 16px; font-size: 11px; font-weight: 600;
+      display: none; text-align: center; max-width: 92%;
+    }
+
     #cargandoVideo {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
       z-index: 10004; color: #fff; font-size: 18px; font-weight: 700;
-      background: rgba(159,34,65,0.9); padding: 14px 22px; border-radius: 12px;
-      display: none;
+      background: rgba(159,34,65,0.9); padding: 14px 22px; border-radius: 12px; display: none;
     }
 
     #btnCerrar {
@@ -114,26 +115,23 @@
     <div class="giro">📱</div>
     <div class="instru">Para una mejor experiencia, coloca tu celular en posición HORIZONTAL</div>
     <button id="btnIniciar">▶ INICIAR ESCANEO</button>
+    <div class="creditos">
+      Material original del canal <b>"Historia Incomprendida"</b> (YouTube).<br>
+      Edición y adecuación: JUDC Capacitación · SEDESA.<br>
+      Se reconoce y agradece al autor del contenido original.
+    </div>
   </div>
 
-  <!-- Marca institucional -->
   <div id="marca" style="display:none;">J.U.D.C.<br><small>SEDESA</small></div>
-
-  <!-- Estado -->
   <div id="estado" style="display:none;">🔍 Apunta a una foto...</div>
-
-  <!-- Cargando video -->
+  <div id="creditoVideo">🎬 Material original: canal "Historia Incomprendida" (YouTube)</div>
   <div id="cargandoVideo">⏳ Cargando video...</div>
-
-  <!-- Botón cerrar -->
   <button id="btnCerrar">✕</button>
 
-  <!-- Overlay video -->
   <div id="overlay">
     <video id="reproductor" playsinline webkit-playsinline></video>
   </div>
 
-  <!-- ===== ESCENA MINDAR (solo detector) ===== -->
   <a-scene id="escenaAR"
     mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; warmupTolerance: 1; missTolerance: 1;"
     color-space="sRGB" embedded
@@ -155,10 +153,13 @@
     const btnIniciar = document.getElementById("btnIniciar");
     const btnCerrar = document.getElementById("btnCerrar");
     const cargandoVideo = document.getElementById("cargandoVideo");
+    const creditoVideo = document.getElementById("creditoVideo");
 
     let reproduciendo = false;
 
-    // Crea los targets detectores
+    const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
     for (let i = 0; i < TOTAL_FOTOS; i++) {
       const target = document.createElement("a-entity");
       target.setAttribute("mindar-image-target", "targetIndex: " + i);
@@ -167,9 +168,8 @@
     }
 
     btnIniciar.addEventListener("click", function () {
-      activarPantallaCompleta();
+      if (!esIOS) activarPantallaCompleta();
 
-      // Desbloqueo de reproducción para móviles
       reproductor.muted = true;
       reproductor.play().then(() => { reproductor.pause(); reproductor.muted = false; }).catch(()=>{ reproductor.muted = false; });
 
@@ -206,7 +206,6 @@
       });
     }
 
-    // Abre el video esperando a que esté LISTO (arregla el bug del pausado)
     function abrirVideo(index) {
       reproduciendo = true;
       estado.style.display = "none";
@@ -220,15 +219,13 @@
       reproductor.loop = true;
       reproductor.load();
 
-      // Espera a que el video pueda reproducirse y entonces lo arranca
       const reproducir = () => {
         cargandoVideo.style.display = "none";
+        creditoVideo.style.display = "block";   // muestra el crédito del autor
         reproductor.play().catch(()=>{});
         reproductor.removeEventListener("canplay", reproducir);
       };
       reproductor.addEventListener("canplay", reproducir);
-
-      // Respaldo: si ya tiene datos, reproduce igual
       if (reproductor.readyState >= 3) reproducir();
     }
 
@@ -239,6 +236,7 @@
       overlay.style.display = "none";
       btnCerrar.style.display = "none";
       cargandoVideo.style.display = "none";
+      creditoVideo.style.display = "none";
       marca.style.display = "block";
       estado.style.display = "block";
       estado.textContent = "🔍 Apunta a otra foto...";
