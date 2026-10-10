@@ -3,113 +3,181 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Exposición AR</title>
+  <title>Exposición AR - JUDC SEDESA</title>
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    * { margin: 0; padding: 0; }
-    html, body { width: 100%; height: 100%; overflow: hidden; font-family: Arial, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background:#000; }
+
+    /* Oculta el botón VR de A-Frame */
+    .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
+
+    /* ===== PANTALLA INICIAL (instrucción horizontal) ===== */
+    #inicio {
+      position: fixed; inset: 0; z-index: 10002;
+      background: #0b3d91; color: #fff;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 24px; gap: 16px;
+    }
+    #inicio .logo { font-size: 26px; font-weight: bold; letter-spacing: 1px; }
+    #inicio .sub { font-size: 14px; opacity: .9; max-width: 340px; line-height: 1.4; }
+    #inicio .giro { font-size: 60px; animation: girar 2s infinite; }
+    @keyframes girar { 0%,100%{transform:rotate(0)} 50%{transform:rotate(90deg)} }
+    #inicio .instru { font-size: 16px; font-weight: bold; max-width: 320px; }
+    #btnIniciar {
+      margin-top: 10px; padding: 16px 28px; border: none; border-radius: 10px;
+      background: #e94560; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer;
+    }
+
+    /* ===== Marca JUDC (siempre visible sobre la cámara) ===== */
+    #marca {
+      position: fixed; top: 10px; left: 10px; z-index: 10000;
+      background: rgba(0,0,0,0.55); color: #fff; padding: 6px 12px; border-radius: 8px;
+      font-size: 13px; font-weight: bold; line-height: 1.2;
+    }
+    #marca small { font-weight: normal; font-size: 10px; opacity: .85; }
+
+    /* ===== Mensaje de estado ===== */
     #estado {
       position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-      z-index: 10000; background: rgba(0,0,0,0.7); color: #fff;
-      padding: 8px 16px; border-radius: 20px; font-size: 14px;
+      z-index: 10000; background: rgba(0,0,0,0.6); color: #fff;
+      padding: 7px 14px; border-radius: 18px; font-size: 13px;
     }
-    #btnIniciar {
+
+    /* ===== OVERLAY del video en PANTALLA COMPLETA ===== */
+    #overlay {
       position: fixed; inset: 0; z-index: 10001;
-      background: #1a1a2e; color: #fff; border: none;
-      font-size: 22px; font-weight: bold; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 20px; text-align: center; padding: 20px;
+      background: #000; display: none;
+      align-items: center; justify-content: center;
+    }
+    #overlay video {
+      width: 100%; height: 100%; object-fit: contain; background:#000;
+    }
+    /* Botón cerrar */
+    #btnCerrar {
+      position: fixed; top: 14px; right: 14px; z-index: 10003;
+      width: 50px; height: 50px; border-radius: 50%; border: none;
+      background: rgba(0,0,0,0.6); color: #fff; font-size: 26px; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
     }
   </style>
 </head>
 <body>
 
-  <button id="btnIniciar">
-    🎬<br>Toca para iniciar<br>la experiencia AR
-  </button>
+  <!-- ===== PANTALLA INICIAL ===== -->
+  <div id="inicio">
+    <div class="logo">JUDC</div>
+    <div class="sub">Jefatura de Unidad Departamental de Capacitación<br>SEDESA · Secretaría de Salud de la Ciudad de México</div>
+    <div class="giro">📱</div>
+    <div class="instru">Para una mejor experiencia, coloca tu celular en posición HORIZONTAL</div>
+    <button id="btnIniciar">▶ Iniciar escaneo</button>
+  </div>
 
-  <div id="estado">🔍 Apunta a una foto...</div>
+  <!-- Marca institucional -->
+  <div id="marca" style="display:none;">JUDC<br><small>SEDESA · Capacitación</small></div>
 
+  <!-- Estado -->
+  <div id="estado" style="display:none;">🔍 Apunta a una foto...</div>
+
+  <!-- Botón cerrar -->
+  <button id="btnCerrar">✕</button>
+
+  <!-- Overlay del video a pantalla completa -->
+  <div id="overlay">
+    <video id="reproductor" playsinline webkit-playsinline></video>
+  </div>
+
+  <!-- ===== ESCENA MINDAR (SOLO COMO DETECTOR, sin video 3D) ===== -->
   <a-scene id="escenaAR"
     mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;"
     color-space="sRGB" embedded
     renderer="colorManagement: true, physicallyCorrectLights"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
-
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-    <!-- Los videos y targets se generan automáticamente abajo -->
-    <a-assets id="assets"></a-assets>
-
+    <!-- Targets vacíos: solo detectan, no muestran nada en 3D -->
   </a-scene>
 
   <script>
     // ================== CONFIGURACIÓN ==================
-    const TOTAL_VIDEOS = 25;   // tus 25 videos (0.mp4 ... 24.mp4)
+    const TOTAL_FOTOS = 25;   // número de fotos/videos (0.mp4 ... 24.mp4)
     // ===================================================
 
     const escena = document.getElementById("escenaAR");
+    const inicio = document.getElementById("inicio");
+    const marca = document.getElementById("marca");
     const estado = document.getElementById("estado");
+    const overlay = document.getElementById("overlay");
+    const reproductor = document.getElementById("reproductor");
     const btnIniciar = document.getElementById("btnIniciar");
-    const assets = document.getElementById("assets");
+    const btnCerrar = document.getElementById("btnCerrar");
 
-    // Crea los videos y targets automáticamente (sin precargar todo)
-    for (let i = 0; i < TOTAL_VIDEOS; i++) {
-      // Video SIN preload (se carga solo cuando se necesita)
-      const video = document.createElement("video");
-      video.id = "v" + i;
-      video.src = "./" + i + ".mp4";
-      video.setAttribute("preload", "none");       // ← NO precarga (clave para 25 videos)
-      video.setAttribute("loop", "");
-      video.setAttribute("playsinline", "");
-      video.setAttribute("webkit-playsinline", "");
-      video.setAttribute("crossorigin", "anonymous");
-      assets.appendChild(video);
+    let reproduciendo = false; // evita abrir otro video mientras ve uno
 
-      // Target (foto) vinculado a su video
+    // Crea los targets (solo detectores, sin contenido visual)
+    for (let i = 0; i < TOTAL_FOTOS; i++) {
       const target = document.createElement("a-entity");
       target.setAttribute("mindar-image-target", "targetIndex: " + i);
-      const aVideo = document.createElement("a-video");
-      aVideo.setAttribute("src", "#v" + i);
-      aVideo.setAttribute("width", "1");
-      aVideo.setAttribute("height", "0.5625");
-      aVideo.setAttribute("position", "0 0 0");
-      target.appendChild(aVideo);
+      target.dataset.index = i;
       escena.appendChild(target);
     }
 
+    // Botón iniciar: desbloquea audio y arranca el detector
     btnIniciar.addEventListener("click", function () {
-      btnIniciar.style.display = "none";
-      iniciarAR();
+      // Desbloquea la reproducción de audio en móviles
+      reproductor.play().then(() => { reproductor.pause(); }).catch(()=>{});
+
+      inicio.style.display = "none";
+      marca.style.display = "block";
+      estado.style.display = "block";
+      iniciarDeteccion();
     });
 
-    function iniciarAR() {
+    function iniciarDeteccion() {
       const arrancar = () => escena.systems["mindar-image-system"].start();
       if (escena.hasLoaded) arrancar();
       else escena.addEventListener("loaded", arrancar);
 
       const targets = document.querySelectorAll("[mindar-image-target]");
       targets.forEach((t) => {
-        const sel = t.querySelector("a-video").getAttribute("src");
-        const video = document.querySelector(sel);
-
+        const index = t.dataset.index;
         t.addEventListener("targetFound", () => {
-          estado.textContent = "✅ ¡Foto detectada!";
-          video.muted = false;
-          video.play().catch(() => {
-            estado.textContent = "⚠️ Toca la pantalla para el audio";
-          });
-        });
-        t.addEventListener("targetLost", () => {
-          estado.textContent = "🔍 Apunta a una foto...";
-          video.pause();
+          if (reproduciendo) return; // ya hay un video abierto
+          abrirVideo(index);
         });
       });
     }
+
+    // Abre el video en PANTALLA COMPLETA (fijo)
+    function abrirVideo(index) {
+      reproduciendo = true;
+      estado.style.display = "none";
+      marca.style.display = "none";
+
+      reproductor.src = "./" + index + ".mp4";
+      reproductor.muted = false;
+      reproductor.loop = true;
+      overlay.style.display = "flex";
+      btnCerrar.style.display = "flex";
+      reproductor.play().catch(()=>{});
+    }
+
+    // Cerrar video y volver a escanear
+    btnCerrar.addEventListener("click", function () {
+      reproductor.pause();
+      reproductor.removeAttribute("src");
+      reproductor.load();
+      overlay.style.display = "none";
+      btnCerrar.style.display = "none";
+      marca.style.display = "block";
+      estado.style.display = "block";
+      estado.textContent = "🔍 Apunta a otra foto...";
+      // Pequeña pausa para evitar re-disparo inmediato
+      setTimeout(() => { reproduciendo = false; }, 800);
+    });
   </script>
 
 </body>
