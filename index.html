@@ -5,62 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>Exposición AR - JUDC SEDESA</title>
 
+  <!-- PWA / App instalable y pantalla completa -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#9F2241" />
+
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; overflow: hidden; font-family: Arial, sans-serif; background:#000; }
+    html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; background:#000; }
 
     /* Oculta el botón VR de A-Frame */
     .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
 
-    /* ===== PANTALLA INICIAL (instrucción horizontal) ===== */
+    /* La cámara de fondo, visible */
+    a-scene, .a-canvas, video.a-canvas, #escenaAR {
+      position: fixed !important; top: 0; left: 0;
+      width: 100vw !important; height: 100vh !important;
+      z-index: 1 !important;
+    }
+
+    /* ===== PANTALLA INICIAL (colores CDMX) ===== */
     #inicio {
       position: fixed; inset: 0; z-index: 10002;
-      background: #0b3d91; color: #fff;
+      background: linear-gradient(160deg, #9F2241 0%, #691C32 100%);
+      color: #fff;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 24px; gap: 16px;
+      text-align: center; padding: 28px; gap: 18px;
     }
-    #inicio .logo { font-size: 26px; font-weight: bold; letter-spacing: 1px; }
-    #inicio .sub { font-size: 14px; opacity: .9; max-width: 340px; line-height: 1.4; }
-    #inicio .giro { font-size: 60px; animation: girar 2s infinite; }
+    #inicio .barra-top {
+      position: absolute; top: 0; left: 0; width: 100%; height: 8px;
+      background: linear-gradient(90deg, #9F2241, #B38E5D, #9F2241);
+    }
+    #inicio .logo {
+      font-size: 34px; font-weight: 800; letter-spacing: 3px;
+      color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    #inicio .linea { width: 80px; height: 3px; background: #B38E5D; border-radius: 3px; }
+    #inicio .titulo { font-size: 17px; font-weight: 700; max-width: 340px; line-height: 1.4; }
+    #inicio .dep { font-size: 14px; color: #f0d9c0; max-width: 320px; line-height: 1.4; }
+    #inicio .giro { font-size: 64px; animation: girar 2.2s infinite ease-in-out; margin: 6px 0; }
     @keyframes girar { 0%,100%{transform:rotate(0)} 50%{transform:rotate(90deg)} }
-    #inicio .instru { font-size: 16px; font-weight: bold; max-width: 320px; }
-    #btnIniciar {
-      margin-top: 10px; padding: 16px 28px; border: none; border-radius: 10px;
-      background: #e94560; color: #fff; font-size: 18px; font-weight: bold; cursor: pointer;
+    #inicio .instru {
+      font-size: 15px; font-weight: 600; max-width: 320px; line-height: 1.4;
+      background: rgba(255,255,255,0.12); padding: 12px 16px; border-radius: 10px;
+      border: 1px solid #B38E5D;
     }
+    #btnIniciar {
+      margin-top: 8px; padding: 16px 36px; border: none; border-radius: 12px;
+      background: #B38E5D; color: #4a1420; font-size: 18px; font-weight: 800; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3); letter-spacing: 1px;
+    }
+    #btnIniciar:active { transform: scale(0.97); }
 
-    /* ===== Marca JUDC (siempre visible sobre la cámara) ===== */
+    /* ===== Marca JUDC ===== */
     #marca {
       position: fixed; top: 10px; left: 10px; z-index: 10000;
-      background: rgba(0,0,0,0.55); color: #fff; padding: 6px 12px; border-radius: 8px;
-      font-size: 13px; font-weight: bold; line-height: 1.2;
+      background: rgba(159,34,65,0.85); color: #fff; padding: 8px 14px;
+      border-radius: 10px; font-size: 13px; font-weight: 700; line-height: 1.2;
+      border-left: 4px solid #B38E5D;
     }
-    #marca small { font-weight: normal; font-size: 10px; opacity: .85; }
+    #marca small { font-weight: normal; font-size: 10px; opacity: .9; }
 
-    /* ===== Mensaje de estado ===== */
+    /* ===== Estado ===== */
     #estado {
       position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
       z-index: 10000; background: rgba(0,0,0,0.6); color: #fff;
-      padding: 7px 14px; border-radius: 18px; font-size: 13px;
+      padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
     }
 
-    /* ===== OVERLAY del video en PANTALLA COMPLETA ===== */
+    /* ===== OVERLAY video pantalla completa ===== */
     #overlay {
       position: fixed; inset: 0; z-index: 10001;
       background: #000; display: none;
       align-items: center; justify-content: center;
     }
-    #overlay video {
-      width: 100%; height: 100%; object-fit: contain; background:#000;
-    }
-    /* Botón cerrar */
+    #overlay video { width: 100%; height: 100%; object-fit: contain; background:#000; }
     #btnCerrar {
       position: fixed; top: 14px; right: 14px; z-index: 10003;
-      width: 50px; height: 50px; border-radius: 50%; border: none;
-      background: rgba(0,0,0,0.6); color: #fff; font-size: 26px; cursor: pointer;
+      width: 52px; height: 52px; border-radius: 50%; border: 2px solid #B38E5D;
+      background: rgba(159,34,65,0.9); color: #fff; font-size: 26px; cursor: pointer;
       display: none; align-items: center; justify-content: center;
     }
   </style>
@@ -69,15 +97,18 @@
 
   <!-- ===== PANTALLA INICIAL ===== -->
   <div id="inicio">
-    <div class="logo">JUDC</div>
-    <div class="sub">Jefatura de Unidad Departamental de Capacitación<br>SEDESA · Secretaría de Salud de la Ciudad de México</div>
+    <div class="barra-top"></div>
+    <div class="logo">J.U.D.C.</div>
+    <div class="linea"></div>
+    <div class="titulo">Jefatura de Unidad Departamental de Control de Personal</div>
+    <div class="dep">SEDESA · Secretaría de Salud de la Ciudad de México</div>
     <div class="giro">📱</div>
     <div class="instru">Para una mejor experiencia, coloca tu celular en posición HORIZONTAL</div>
-    <button id="btnIniciar">▶ Iniciar escaneo</button>
+    <button id="btnIniciar">▶ INICIAR ESCANEO</button>
   </div>
 
   <!-- Marca institucional -->
-  <div id="marca" style="display:none;">JUDC<br><small>SEDESA · Capacitación</small></div>
+  <div id="marca" style="display:none;">J.U.D.C.<br><small>SEDESA · Control de Personal</small></div>
 
   <!-- Estado -->
   <div id="estado" style="display:none;">🔍 Apunta a una foto...</div>
@@ -85,12 +116,12 @@
   <!-- Botón cerrar -->
   <button id="btnCerrar">✕</button>
 
-  <!-- Overlay del video a pantalla completa -->
+  <!-- Overlay video -->
   <div id="overlay">
     <video id="reproductor" playsinline webkit-playsinline></video>
   </div>
 
-  <!-- ===== ESCENA MINDAR (SOLO COMO DETECTOR, sin video 3D) ===== -->
+  <!-- ===== ESCENA MINDAR (solo detector) ===== -->
   <a-scene id="escenaAR"
     mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no;"
     color-space="sRGB" embedded
@@ -98,13 +129,10 @@
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-    <!-- Targets vacíos: solo detectan, no muestran nada en 3D -->
   </a-scene>
 
   <script>
-    // ================== CONFIGURACIÓN ==================
-    const TOTAL_FOTOS = 25;   // número de fotos/videos (0.mp4 ... 24.mp4)
-    // ===================================================
+    const TOTAL_FOTOS = 25;
 
     const escena = document.getElementById("escenaAR");
     const inicio = document.getElementById("inicio");
@@ -115,9 +143,9 @@
     const btnIniciar = document.getElementById("btnIniciar");
     const btnCerrar = document.getElementById("btnCerrar");
 
-    let reproduciendo = false; // evita abrir otro video mientras ve uno
+    let reproduciendo = false;
 
-    // Crea los targets (solo detectores, sin contenido visual)
+    // Crea los targets detectores
     for (let i = 0; i < TOTAL_FOTOS; i++) {
       const target = document.createElement("a-entity");
       target.setAttribute("mindar-image-target", "targetIndex: " + i);
@@ -125,19 +153,32 @@
       escena.appendChild(target);
     }
 
-    // Botón iniciar: desbloquea audio y arranca el detector
     btnIniciar.addEventListener("click", function () {
-      // Desbloquea la reproducción de audio en móviles
-      reproductor.play().then(() => { reproductor.pause(); }).catch(()=>{});
+      // Activar PANTALLA COMPLETA (oculta la barra de dirección)
+      activarPantallaCompleta();
 
+      reproductor.play().then(() => { reproductor.pause(); }).catch(()=>{});
       inicio.style.display = "none";
       marca.style.display = "block";
       estado.style.display = "block";
+      estado.textContent = "⏳ Iniciando cámara...";
       iniciarDeteccion();
     });
 
+    // Pantalla completa (compatible con varios móviles)
+    function activarPantallaCompleta() {
+      const el = document.documentElement;
+      if (el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); }
+      else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
+      else if (el.mozRequestFullScreen) { el.mozRequestFullScreen(); }
+      else if (el.msRequestFullscreen) { el.msRequestFullscreen(); }
+    }
+
     function iniciarDeteccion() {
-      const arrancar = () => escena.systems["mindar-image-system"].start();
+      const arrancar = () => {
+        escena.systems["mindar-image-system"].start();
+        estado.textContent = "🔍 Apunta a una foto...";
+      };
       if (escena.hasLoaded) arrancar();
       else escena.addEventListener("loaded", arrancar);
 
@@ -145,18 +186,16 @@
       targets.forEach((t) => {
         const index = t.dataset.index;
         t.addEventListener("targetFound", () => {
-          if (reproduciendo) return; // ya hay un video abierto
+          if (reproduciendo) return;
           abrirVideo(index);
         });
       });
     }
 
-    // Abre el video en PANTALLA COMPLETA (fijo)
     function abrirVideo(index) {
       reproduciendo = true;
       estado.style.display = "none";
       marca.style.display = "none";
-
       reproductor.src = "./" + index + ".mp4";
       reproductor.muted = false;
       reproductor.loop = true;
@@ -165,7 +204,6 @@
       reproductor.play().catch(()=>{});
     }
 
-    // Cerrar video y volver a escanear
     btnCerrar.addEventListener("click", function () {
       reproductor.pause();
       reproductor.removeAttribute("src");
@@ -175,7 +213,6 @@
       marca.style.display = "block";
       estado.style.display = "block";
       estado.textContent = "🔍 Apunta a otra foto...";
-      // Pequeña pausa para evitar re-disparo inmediato
       setTimeout(() => { reproduciendo = false; }, 800);
     });
   </script>
