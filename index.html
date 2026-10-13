@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Exposición AR - JUDC SEDESA</title>
+  <title>Experiencia Inmersiva AR - JUD. de Capacitación SEDESA</title>
 
   <link rel="manifest" href="./manifest.json" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -35,7 +35,7 @@
     }
     #registro .barra-top { position: fixed; top: 0; left: 0; width: 100%; height: 8px;
       background: linear-gradient(90deg, #9F2241, #B38E5D, #9F2241); z-index: 10006; }
-    #registro .logo { font-size: 28px; font-weight: 800; letter-spacing: 2px; margin-top: 10px; }
+    #registro .logo { font-size: 24px; font-weight: 800; letter-spacing: 1px; margin-top: 10px; text-align:center; }
     #registro .dep { font-size: 12px; color: #f0d9c0; text-align: center; margin-bottom: 14px; max-width: 340px; }
     #registro h2 { font-size: 16px; margin-bottom: 10px; color: #fff; }
     #registro label { width: 100%; max-width: 360px; font-size: 13px; font-weight: 600; margin: 8px 0 3px; }
@@ -45,9 +45,9 @@
       font-size: 16px; box-sizing: border-box;
     }
     #aviso {
-      max-width: 360px; font-size: 11px; color: #f0d9c0; line-height: 1.4;
-      background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 8px; margin: 14px 0 8px;
-      border: 1px solid #B38E5D;
+      max-width: 360px; width: 100%; font-size: 11px; color: #f0d9c0; line-height: 1.5;
+      background: rgba(0,0,0,0.2); padding: 12px 14px; border-radius: 8px; margin: 14px 0 8px;
+      border: 1px solid #B38E5D; text-align: justify;
     }
     .check-linea { max-width: 360px; width: 100%; display: flex; align-items: flex-start; gap: 8px; font-size: 12px; margin-bottom: 4px; }
     #btnRegistrar {
@@ -66,9 +66,10 @@
     }
     #inicio .barra-top { position: absolute; top: 0; left: 0; width: 100%; height: 8px;
       background: linear-gradient(90deg, #9F2241, #B38E5D, #9F2241); }
-    #inicio .logo { font-size: 34px; font-weight: 800; letter-spacing: 3px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    #inicio .logo { font-size: 26px; font-weight: 800; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
     #inicio .linea { width: 80px; height: 3px; background: #B38E5D; border-radius: 3px; }
     #inicio .titulo { font-size: 17px; font-weight: 700; max-width: 340px; line-height: 1.4; }
+    #inicio .sublema { font-size: 13px; color: #ffd27a; font-style: italic; letter-spacing: 1px; }
     #inicio .dep { font-size: 14px; color: #f0d9c0; max-width: 320px; line-height: 1.4; }
     #inicio .giro { font-size: 56px; animation: girar 2.2s infinite ease-in-out; margin: 4px 0; }
     @keyframes girar { 0%,100%{transform:rotate(0)} 50%{transform:rotate(90deg)} }
@@ -83,7 +84,7 @@
 
     #marca { position: fixed; top: 10px; left: 10px; z-index: 10000; display:none;
       background: rgba(159,34,65,0.85); color: #fff; padding: 8px 14px; border-radius: 10px;
-      font-size: 13px; font-weight: 700; line-height: 1.2; border-left: 4px solid #B38E5D; }
+      font-size: 12px; font-weight: 700; line-height: 1.2; border-left: 4px solid #B38E5D; }
     #marca small { font-weight: normal; font-size: 10px; opacity: .9; }
     #estado { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 10000; display:none;
       background: rgba(0,0,0,0.6); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
@@ -106,7 +107,7 @@
   <!-- ===== PANTALLA DE REGISTRO (OBLIGATORIA) ===== -->
   <div id="registro">
     <div class="barra-top"></div>
-    <div class="logo">J.U.D.C.</div>
+    <div class="logo">JUD. de Capacitación</div>
     <div class="dep">SEDESA · Secretaría de Salud Pública de la Ciudad de México</div>
     <h2>📝 Registro de participantes</h2>
 
@@ -143,23 +144,23 @@
   <!-- ===== PANTALLA INICIAL ===== -->
   <div id="inicio">
     <div class="barra-top"></div>
-    <div class="logo">J.U.D.C.</div>
+    <div class="logo">JUD. de Capacitación</div>
     <div class="linea"></div>
     <div class="titulo">Jefatura de Unidad Departamental de Capacitación</div>
+    <div class="sublema">✨ Una experiencia inmersiva ✨</div>
     <div class="dep">SEDESA<br>Secretaría de Salud Pública de la Ciudad de México</div>
     <div class="giro">📱</div>
     <div class="instru">Para una mejor experiencia, coloca tu celular en posición HORIZONTAL</div>
     <button id="btnIniciar">▶ INICIAR ESCANEO</button>
     <div class="creditos">
-      Material original del canal <b>"Historia Incomprendida"</b> (YouTube).<br>
-      Edición y adecuación: JUDC Capacitación · SEDESA.<br>
-      Se reconoce y agradece al autor del contenido original.
+      Material original: <b>Historia Incomprendida</b>.<br>
+      Edición y adecuación: JUD. de Capacitación · SEDESA.
     </div>
   </div>
 
-  <div id="marca">J.U.D.C.<br><small>SEDESA</small></div>
+  <div id="marca">JUD. de Capacitación<br><small>SEDESA</small></div>
   <div id="estado">🔍 Apunta a una foto...</div>
-  <div id="creditoVideo">🎬 Material original: canal "Historia Incomprendida" (YouTube)</div>
+  <div id="creditoVideo">🎬 Material original: Historia Incomprendida</div>
   <div id="cargandoVideo">⏳ Cargando video...</div>
   <button id="btnCerrar">✕</button>
 
@@ -182,7 +183,6 @@
     const URL_GUARDADO = "https://script.google.com/macros/s/AKfycbyvYaSQGhaYA1gMyoiwQg3fLEweesFpCh5z3OSxNBzUhTvOnVeqvTnKyB7UbgTatBxQ/exec";
     // ===================================================
 
-    // --- Elementos de registro ---
     const correo = document.getElementById("correo");
     const nombre = document.getElementById("nombre");
     const primerApellido = document.getElementById("primerApellido");
@@ -193,7 +193,6 @@
     const msgError = document.getElementById("msgError");
     const registro = document.getElementById("registro");
 
-    // --- Elementos AR ---
     const escena = document.getElementById("escenaAR");
     const inicio = document.getElementById("inicio");
     const marca = document.getElementById("marca");
@@ -209,7 +208,6 @@
     const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-    // Validar campos obligatorios
     function validarRegistro() {
       const correoOk = /\S+@\S+\.\S+/.test(correo.value.trim());
       const ok = correoOk && nombre.value.trim() && primerApellido.value.trim()
@@ -219,7 +217,6 @@
     [correo, nombre, primerApellido, area].forEach(el => el.addEventListener("input", validarRegistro));
     acepto.addEventListener("change", validarRegistro);
 
-    // Al continuar: guardar datos y pasar a la pantalla inicial
     btnRegistrar.addEventListener("click", function () {
       if (!/\S+@\S+\.\S+/.test(correo.value.trim())) {
         msgError.textContent = "Ingresa un correo válido.";
@@ -242,13 +239,11 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos)
       }).finally(() => {
-        // Pasa a la pantalla de bienvenida
         registro.style.display = "none";
         inicio.style.display = "flex";
       });
     });
 
-    // Crea los targets detectores
     for (let i = 0; i < TOTAL_FOTOS; i++) {
       const target = document.createElement("a-entity");
       target.setAttribute("mindar-image-target", "targetIndex: " + i);
