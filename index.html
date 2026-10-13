@@ -17,99 +17,128 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; background:#000; }
-
     .a-enter-vr, .a-enter-ar, .a-orientation-modal { display: none !important; }
-
-    /* ===== FIX iOS: canvas transparente para ver la cámara ===== */
     a-scene { position: fixed !important; top: 0; left: 0; width: 100vw !important; height: 100vh !important; z-index: 1 !important; }
     .a-canvas, canvas.a-canvas {
-      background-color: transparent !important;
-      background: transparent !important;
+      background-color: transparent !important; background: transparent !important;
       position: fixed !important; top: 0; left: 0;
-      width: 100vw !important; height: 100vh !important;
-      z-index: 2 !important;
+      width: 100vw !important; height: 100vh !important; z-index: 2 !important;
     }
-    /* El video de la cámara de MindAR, detrás del canvas */
-    video {
-      object-fit: cover;
+    video { object-fit: cover; }
+
+    /* ===== PANTALLA DE REGISTRO ===== */
+    #registro {
+      position: fixed; inset: 0; z-index: 10005;
+      background: linear-gradient(160deg, #9F2241 0%, #691C32 100%); color: #fff;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      padding: 24px 20px; overflow-y: auto;
     }
+    #registro .barra-top { position: fixed; top: 0; left: 0; width: 100%; height: 8px;
+      background: linear-gradient(90deg, #9F2241, #B38E5D, #9F2241); z-index: 10006; }
+    #registro .logo { font-size: 28px; font-weight: 800; letter-spacing: 2px; margin-top: 10px; }
+    #registro .dep { font-size: 12px; color: #f0d9c0; text-align: center; margin-bottom: 14px; max-width: 340px; }
+    #registro h2 { font-size: 16px; margin-bottom: 10px; color: #fff; }
+    #registro label { width: 100%; max-width: 360px; font-size: 13px; font-weight: 600; margin: 8px 0 3px; }
+    #registro .oblig { color: #ffd27a; }
+    #registro input {
+      width: 100%; max-width: 360px; padding: 12px; border: none; border-radius: 8px;
+      font-size: 16px; box-sizing: border-box;
+    }
+    #aviso {
+      max-width: 360px; font-size: 11px; color: #f0d9c0; line-height: 1.4;
+      background: rgba(0,0,0,0.2); padding: 10px 12px; border-radius: 8px; margin: 14px 0 8px;
+      border: 1px solid #B38E5D;
+    }
+    .check-linea { max-width: 360px; width: 100%; display: flex; align-items: flex-start; gap: 8px; font-size: 12px; margin-bottom: 4px; }
+    #btnRegistrar {
+      width: 100%; max-width: 360px; padding: 15px; margin-top: 14px; border: none; border-radius: 10px;
+      background: #B38E5D; color: #4a1420; font-size: 17px; font-weight: 800; cursor: pointer; letter-spacing: 1px;
+    }
+    #btnRegistrar:disabled { background: #7a6a55; color: #ddd; cursor: not-allowed; }
+    #msgError { color: #ffd27a; font-size: 12px; margin-top: 8px; min-height: 16px; text-align:center; }
 
     /* ===== PANTALLA INICIAL ===== */
     #inicio {
-      position: fixed; inset: 0; z-index: 10002;
-      background: linear-gradient(160deg, #9F2241 0%, #691C32 100%);
-      color: #fff;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: fixed; inset: 0; z-index: 10002; display: none;
+      background: linear-gradient(160deg, #9F2241 0%, #691C32 100%); color: #fff;
+      flex-direction: column; align-items: center; justify-content: center;
       text-align: center; padding: 24px; gap: 14px; overflow-y: auto;
     }
-    #inicio .barra-top {
-      position: absolute; top: 0; left: 0; width: 100%; height: 8px;
-      background: linear-gradient(90deg, #9F2241, #B38E5D, #9F2241);
-    }
+    #inicio .barra-top { position: absolute; top: 0; left: 0; width: 100%; height: 8px;
+      background: linear-gradient(90deg, #9F2241, #B38E5D, #9F2241); }
     #inicio .logo { font-size: 34px; font-weight: 800; letter-spacing: 3px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
     #inicio .linea { width: 80px; height: 3px; background: #B38E5D; border-radius: 3px; }
     #inicio .titulo { font-size: 17px; font-weight: 700; max-width: 340px; line-height: 1.4; }
     #inicio .dep { font-size: 14px; color: #f0d9c0; max-width: 320px; line-height: 1.4; }
     #inicio .giro { font-size: 56px; animation: girar 2.2s infinite ease-in-out; margin: 4px 0; }
     @keyframes girar { 0%,100%{transform:rotate(0)} 50%{transform:rotate(90deg)} }
-    #inicio .instru {
-      font-size: 14px; font-weight: 600; max-width: 320px; line-height: 1.4;
-      background: rgba(255,255,255,0.12); padding: 10px 14px; border-radius: 10px;
-      border: 1px solid #B38E5D;
-    }
-    #inicio .creditos {
-      font-size: 10px; color: #e8cdb5; max-width: 320px; line-height: 1.4;
-      border-top: 1px solid rgba(179,142,93,0.5); padding-top: 8px; margin-top: 4px;
-    }
-    #btnIniciar {
-      margin-top: 6px; padding: 16px 36px; border: none; border-radius: 12px;
+    #inicio .instru { font-size: 14px; font-weight: 600; max-width: 320px; line-height: 1.4;
+      background: rgba(255,255,255,0.12); padding: 10px 14px; border-radius: 10px; border: 1px solid #B38E5D; }
+    #inicio .creditos { font-size: 10px; color: #e8cdb5; max-width: 320px; line-height: 1.4;
+      border-top: 1px solid rgba(179,142,93,0.5); padding-top: 8px; margin-top: 4px; }
+    #btnIniciar { margin-top: 6px; padding: 16px 36px; border: none; border-radius: 12px;
       background: #B38E5D; color: #4a1420; font-size: 18px; font-weight: 800; cursor: pointer;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.3); letter-spacing: 1px;
-    }
+      box-shadow: 0 4px 14px rgba(0,0,0,0.3); letter-spacing: 1px; }
     #btnIniciar:active { transform: scale(0.97); }
 
-    #marca {
-      position: fixed; top: 10px; left: 10px; z-index: 10000;
-      background: rgba(159,34,65,0.85); color: #fff; padding: 8px 14px;
-      border-radius: 10px; font-size: 13px; font-weight: 700; line-height: 1.2;
-      border-left: 4px solid #B38E5D;
-    }
+    #marca { position: fixed; top: 10px; left: 10px; z-index: 10000; display:none;
+      background: rgba(159,34,65,0.85); color: #fff; padding: 8px 14px; border-radius: 10px;
+      font-size: 13px; font-weight: 700; line-height: 1.2; border-left: 4px solid #B38E5D; }
     #marca small { font-weight: normal; font-size: 10px; opacity: .9; }
-
-    #estado {
-      position: fixed; top: 10px; left: 50%; transform: translateX(-50%);
-      z-index: 10000; background: rgba(0,0,0,0.6); color: #fff;
-      padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
-    }
-
-    #overlay {
-      position: fixed; inset: 0; z-index: 10001;
-      background: #000; display: none; align-items: center; justify-content: center;
-    }
+    #estado { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 10000; display:none;
+      background: rgba(0,0,0,0.6); color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+    #overlay { position: fixed; inset: 0; z-index: 10001; background: #000; display: none;
+      align-items: center; justify-content: center; }
     #overlay video { width: 100%; height: 100%; object-fit: contain; background:#000; }
-
-    #creditoVideo {
-      position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
-      z-index: 10002; background: rgba(0,0,0,0.6); color: #fff;
-      padding: 6px 14px; border-radius: 16px; font-size: 11px; font-weight: 600;
-      display: none; text-align: center; max-width: 92%;
-    }
-
-    #cargandoVideo {
-      position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      z-index: 10004; color: #fff; font-size: 18px; font-weight: 700;
-      background: rgba(159,34,65,0.9); padding: 14px 22px; border-radius: 12px; display: none;
-    }
-
-    #btnCerrar {
-      position: fixed; top: 14px; right: 14px; z-index: 10003;
-      width: 52px; height: 52px; border-radius: 50%; border: 2px solid #B38E5D;
-      background: rgba(159,34,65,0.9); color: #fff; font-size: 26px; cursor: pointer;
-      display: none; align-items: center; justify-content: center;
-    }
+    #creditoVideo { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 10002;
+      background: rgba(0,0,0,0.6); color: #fff; padding: 6px 14px; border-radius: 16px;
+      font-size: 11px; font-weight: 600; display: none; text-align: center; max-width: 92%; }
+    #cargandoVideo { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 10004;
+      color: #fff; font-size: 18px; font-weight: 700; background: rgba(159,34,65,0.9);
+      padding: 14px 22px; border-radius: 12px; display: none; }
+    #btnCerrar { position: fixed; top: 14px; right: 14px; z-index: 10003; width: 52px; height: 52px;
+      border-radius: 50%; border: 2px solid #B38E5D; background: rgba(159,34,65,0.9); color: #fff;
+      font-size: 26px; cursor: pointer; display: none; align-items: center; justify-content: center; }
   </style>
 </head>
 <body>
+
+  <!-- ===== PANTALLA DE REGISTRO (OBLIGATORIA) ===== -->
+  <div id="registro">
+    <div class="barra-top"></div>
+    <div class="logo">J.U.D.C.</div>
+    <div class="dep">SEDESA · Secretaría de Salud Pública de la Ciudad de México</div>
+    <h2>📝 Registro de participantes</h2>
+
+    <label>Correo electrónico <span class="oblig">*</span></label>
+    <input type="email" id="correo" placeholder="ejemplo@correo.com" />
+
+    <label>Nombre(s) <span class="oblig">*</span></label>
+    <input type="text" id="nombre" placeholder="Nombre(s)" />
+
+    <label>Primer Apellido <span class="oblig">*</span></label>
+    <input type="text" id="primerApellido" placeholder="Primer Apellido" />
+
+    <label>Segundo Apellido</label>
+    <input type="text" id="segundoApellido" placeholder="Segundo Apellido (opcional)" />
+
+    <label>Área <span class="oblig">*</span></label>
+    <input type="text" id="area" placeholder="Área de adscripción" />
+
+    <div id="aviso">
+      <b>Aviso de privacidad:</b> Los datos solicitados son meramente informativos y
+      estadísticos. No serán compartidos con terceros ni utilizados para ningún fin
+      distinto al registro de asistencia a esta exposición.
+    </div>
+
+    <label class="check-linea">
+      <input type="checkbox" id="acepto" />
+      <span>He leído y acepto el aviso de privacidad.</span>
+    </label>
+
+    <button id="btnRegistrar" disabled>CONTINUAR</button>
+    <div id="msgError"></div>
+  </div>
 
   <!-- ===== PANTALLA INICIAL ===== -->
   <div id="inicio">
@@ -128,8 +157,8 @@
     </div>
   </div>
 
-  <div id="marca" style="display:none;">J.U.D.C.<br><small>SEDESA</small></div>
-  <div id="estado" style="display:none;">🔍 Apunta a una foto...</div>
+  <div id="marca">J.U.D.C.<br><small>SEDESA</small></div>
+  <div id="estado">🔍 Apunta a una foto...</div>
   <div id="creditoVideo">🎬 Material original: canal "Historia Incomprendida" (YouTube)</div>
   <div id="cargandoVideo">⏳ Cargando video...</div>
   <button id="btnCerrar">✕</button>
@@ -138,7 +167,6 @@
     <video id="reproductor" playsinline webkit-playsinline></video>
   </div>
 
-  <!-- ESCENA MINDAR con alpha: true (clave para iOS) -->
   <a-scene id="escenaAR"
     mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; warmupTolerance: 1; missTolerance: 1;"
     color-space="sRGB" embedded
@@ -149,8 +177,23 @@
   </a-scene>
 
   <script>
+    // ================== CONFIGURACIÓN ==================
     const TOTAL_FOTOS = 25;
+    const URL_GUARDADO = "https://script.google.com/macros/s/AKfycbyvYaSQGhaYA1gMyoiwQg3fLEweesFpCh5z3OSxNBzUhTvOnVeqvTnKyB7UbgTatBxQ/exec";
+    // ===================================================
 
+    // --- Elementos de registro ---
+    const correo = document.getElementById("correo");
+    const nombre = document.getElementById("nombre");
+    const primerApellido = document.getElementById("primerApellido");
+    const segundoApellido = document.getElementById("segundoApellido");
+    const area = document.getElementById("area");
+    const acepto = document.getElementById("acepto");
+    const btnRegistrar = document.getElementById("btnRegistrar");
+    const msgError = document.getElementById("msgError");
+    const registro = document.getElementById("registro");
+
+    // --- Elementos AR ---
     const escena = document.getElementById("escenaAR");
     const inicio = document.getElementById("inicio");
     const marca = document.getElementById("marca");
@@ -163,10 +206,49 @@
     const creditoVideo = document.getElementById("creditoVideo");
 
     let reproduciendo = false;
-
     const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+    // Validar campos obligatorios
+    function validarRegistro() {
+      const correoOk = /\S+@\S+\.\S+/.test(correo.value.trim());
+      const ok = correoOk && nombre.value.trim() && primerApellido.value.trim()
+                 && area.value.trim() && acepto.checked;
+      btnRegistrar.disabled = !ok;
+    }
+    [correo, nombre, primerApellido, area].forEach(el => el.addEventListener("input", validarRegistro));
+    acepto.addEventListener("change", validarRegistro);
+
+    // Al continuar: guardar datos y pasar a la pantalla inicial
+    btnRegistrar.addEventListener("click", function () {
+      if (!/\S+@\S+\.\S+/.test(correo.value.trim())) {
+        msgError.textContent = "Ingresa un correo válido.";
+        return;
+      }
+      btnRegistrar.disabled = true;
+      btnRegistrar.textContent = "Registrando...";
+      msgError.textContent = "";
+
+      const datos = {
+        correo: correo.value.trim(),
+        nombre: nombre.value.trim(),
+        primerApellido: primerApellido.value.trim(),
+        segundoApellido: segundoApellido.value.trim(),
+        area: area.value.trim()
+      };
+
+      fetch(URL_GUARDADO, {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+      }).finally(() => {
+        // Pasa a la pantalla de bienvenida
+        registro.style.display = "none";
+        inicio.style.display = "flex";
+      });
+    });
+
+    // Crea los targets detectores
     for (let i = 0; i < TOTAL_FOTOS; i++) {
       const target = document.createElement("a-entity");
       target.setAttribute("mindar-image-target", "targetIndex: " + i);
@@ -176,10 +258,8 @@
 
     btnIniciar.addEventListener("click", function () {
       if (!esIOS) activarPantallaCompleta();
-
       reproductor.muted = true;
       reproductor.play().then(() => { reproductor.pause(); reproductor.muted = false; }).catch(()=>{ reproductor.muted = false; });
-
       inicio.style.display = "none";
       marca.style.display = "block";
       estado.style.display = "block";
@@ -199,7 +279,6 @@
       const arrancar = () => {
         escena.systems["mindar-image-system"].start();
         estado.textContent = "🔍 Apunta a una foto...";
-        // FIX iOS: asegurar que el video de la cámara sea visible
         setTimeout(ajustarCamaraIOS, 800);
       };
       if (escena.hasLoaded) arrancar();
@@ -215,20 +294,15 @@
       });
     }
 
-    // Fuerza que el video de la cámara de MindAR se muestre en iOS
     function ajustarCamaraIOS() {
       const videos = document.querySelectorAll("video");
       videos.forEach(v => {
-        if (v.id !== "reproductor") {  // el video de la cámara (no el reproductor)
+        if (v.id !== "reproductor") {
           v.setAttribute("playsinline", "");
           v.setAttribute("webkit-playsinline", "");
-          v.style.position = "fixed";
-          v.style.top = "0";
-          v.style.left = "0";
-          v.style.width = "100vw";
-          v.style.height = "100vh";
-          v.style.objectFit = "cover";
-          v.style.zIndex = "0";
+          v.style.position = "fixed"; v.style.top = "0"; v.style.left = "0";
+          v.style.width = "100vw"; v.style.height = "100vh";
+          v.style.objectFit = "cover"; v.style.zIndex = "0";
           v.play && v.play().catch(()=>{});
         }
       });
@@ -241,12 +315,10 @@
       overlay.style.display = "flex";
       btnCerrar.style.display = "flex";
       cargandoVideo.style.display = "block";
-
       reproductor.src = "./" + index + ".mp4";
       reproductor.muted = false;
       reproductor.loop = true;
       reproductor.load();
-
       const reproducir = () => {
         cargandoVideo.style.display = "none";
         creditoVideo.style.display = "block";
