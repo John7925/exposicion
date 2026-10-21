@@ -26,6 +26,15 @@
     }
     video { object-fit: cover; }
 
+    /* ===== NOMBRE DE LA EXPOSICIÓN (ALTO CONTRASTE) ===== */
+    .nombre-expo {
+      color: #FFD27A;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.45);
+    }
+
     /* ===== PANTALLA DE REGISTRO ===== */
     #registro {
       position: fixed; inset: 0; z-index: 10005;
@@ -109,8 +118,9 @@
     <div class="barra-top"></div>
     <div class="logo">JUD. de Capacitación</div>
     <div class="dep">SEDESA · Secretaría de Salud Pública de la Ciudad de México</div>
+    <div class="nombre-expo">Ecos de la Revolución: Memoria Viva</div>
     <h2>📝 Registro de participantes</h2>
-
+    
     <label>Correo electrónico <span class="oblig">*</span></label>
     <input type="email" id="correo" placeholder="ejemplo@correo.com" />
 
@@ -120,8 +130,8 @@
     <label>Primer Apellido <span class="oblig">*</span></label>
     <input type="text" id="primerApellido" placeholder="Primer Apellido" />
 
-    <label>Segundo Apellido</label>
-    <input type="text" id="segundoApellido" placeholder="Segundo Apellido (opcional)" />
+    <label>Segundo Apellido <span class="oblig">*</span></label>
+    <input type="text" id="segundoApellido" placeholder="Segundo Apellido" />
 
     <label>Área <span class="oblig">*</span></label>
     <input type="text" id="area" placeholder="Área de adscripción" />
@@ -145,9 +155,9 @@
   <div id="inicio">
     <div class="barra-top"></div>
     <div class="logo">JUD. de Capacitación</div>
-    <div class="linea"></div>
-    <div class="titulo">Jefatura de Unidad Departamental de Capacitación</div>
-    <div class="sublema">✨ Una experiencia inmersiva ✨</div>
+    <div class="dep">SEDESA · Secretaría de Salud Pública de la Ciudad de México</div>
+    <div class="nombre-expo">Ecos de la Revolución: Memoria Viva</div>
+    <h2>📝 Registro de participantes</h2>
     <div class="dep">SEDESA<br>Secretaría de Salud Pública de la Ciudad de México</div>
     <div class="giro">📱</div>
     <div class="instru">Para una mejor experiencia, coloca tu celular en posición HORIZONTAL</div>
