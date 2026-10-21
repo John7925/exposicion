@@ -1,9 +1,18 @@
 {
-  "name": "Exposición AR - JUDC SEDESA",
-  "short_name": "JUDC AR",
-  "start_url": "./index.html",
+  "name": "Ecos de la Revolución: Memoria Viva",
+  "short_name": "Ecos AR",
+  "description": "Experiencia inmersiva AR - JUD. de Capacitación SEDESA",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
   "display": "fullscreen",
-  "background_color": "#9F2241",
+  "display_override": ["fullscreen", "standalone", "minimal-ui"],
+  "orientation": "landscape",
+  "background_color": "#691C32",
   "theme_color": "#9F2241",
-  "orientation": "landscape"
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }
