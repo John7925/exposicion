@@ -245,20 +245,10 @@
         area: area.value.trim()
       };
 
-      // Timeout de seguridad por si Google Apps Script se satura con los 60 usuarios
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(timeout), 5000)
-      );
-
-      Promise.race([
-        fetch(URL_GUARDADO, {
-          method: "POST", mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(datos)
-        }),
-        timeoutPromise
-      ]).catch(() => {
-        // Aunque falle o expire por red/saturación, dejamos pasar al usuario para no bloquear su asistencia
+      fetch(URL_GUARDADO, {
+        method: "POST", mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
       }).finally(() => {
         registro.style.display = "none";
         inicio.style.display = "flex";
@@ -287,6 +277,8 @@
       const el = document.documentElement;
       if (el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); }
       else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
+      else if (el.mozRequestFullScreen) { el.mozRequestFullScreen(); }
+      else if (el.msRequestFullscreen) { el.msRequestFullscreen(); }
     }
 
     function iniciarDeteccion() {
@@ -333,7 +325,6 @@
       reproductor.muted = false;
       reproductor.loop = true;
       reproductor.load();
-      
       const reproducir = () => {
         cargandoVideo.style.display = "none";
         creditoVideo.style.display = "block";
@@ -355,7 +346,6 @@
       marca.style.display = "block";
       estado.style.display = "block";
       estado.textContent = "🔍 Apunta a otra foto...";
-      // Reducido a 300ms para agilizar la fluidez
       setTimeout(() => { reproduciendo = false; }, 300);
     });
   </script>
