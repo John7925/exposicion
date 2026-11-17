@@ -271,8 +271,22 @@
       estado.style.display = "block";
       estado.textContent = "⏳ Iniciando cámara...";
       iniciarDeteccion();
-    });
 
+      // CORRECCIÓN CLAVE PARA IOS / IPHONE:
+      // Forzar un "resize" del navegador y del canvas para corregir el zoom de 1/4 de pantalla
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        if (escena && escena.resize) {
+          escena.resize();
+        }
+      }, 400);
+
+      // Segundo reintento por si el DOM de Safari tarda en estabilizar el stream de video
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 1000);
+    });
+    
     function activarPantallaCompleta() {
       const el = document.documentElement;
       if (el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); }
