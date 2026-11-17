@@ -6,8 +6,6 @@
   <title>Experiencia Inmersiva AR - JUD. de Capacitación SEDESA</title>
 
   <link rel="manifest" href="./manifest.json" />
-  <link rel="apple-touch-icon" href="./icon-192.png" /> <!-- NUEVO: ícono al instalar en iPhone -->
-  <meta name="apple-mobile-web-app-title" content="Ecos AR" /> <!-- NUEVO -->
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -122,7 +120,7 @@
     <div class="dep">SEDESA · Secretaría de Salud Pública de la Ciudad de México</div>
     <div class="nombre-expo">Ecos de la Revolución: Memoria Viva</div>
     <h2>📝 Registro de participantes</h2>
-
+    
     <label>Correo electrónico <span class="oblig">*</span></label>
     <input type="email" id="correo" placeholder="ejemplo@correo.com" />
 
@@ -159,7 +157,8 @@
     <div class="logo">JUD. de Capacitación</div>
     <div class="dep">SEDESA · Secretaría de Salud Pública de la Ciudad de México</div>
     <div class="nombre-expo">Ecos de la Revolución: Memoria Viva</div>
-    <div class="linea"></div>
+    <h2>📝 Registro de participantes</h2>
+    <div class="dep">SEDESA<br>Secretaría de Salud Pública de la Ciudad de México</div>
     <div class="giro">📱</div>
     <div class="instru">Para una mejor experiencia, coloca tu celular en posición HORIZONTAL</div>
     <button id="btnIniciar">▶ INICIAR ESCANEO</button>
@@ -230,7 +229,6 @@
     acepto.addEventListener("change", validarRegistro);
 
     btnRegistrar.addEventListener("click", function () {
-      if (!esIOS) activarPantallaCompleta(); // NUEVO: pantalla completa desde el primer toque (Android)
       if (!/\S+@\S+\.\S+/.test(correo.value.trim())) {
         msgError.textContent = "Ingresa un correo válido.";
         return;
@@ -247,10 +245,20 @@
         area: area.value.trim()
       };
 
-      fetch(URL_GUARDADO, {
-        method: "POST", mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datos)
+      // Timeout de seguridad por si Google Apps Script se satura con los 60 usuarios
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(timeout), 5000)
+      );
+
+      Promise.race([
+        fetch(URL_GUARDADO, {
+          method: "POST", mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(datos)
+        }),
+        timeoutPromise
+      ]).catch(() => {
+        // Aunque falle o expire por red/saturación, dejamos pasar al usuario para no bloquear su asistencia
       }).finally(() => {
         registro.style.display = "none";
         inicio.style.display = "flex";
@@ -279,16 +287,7 @@
       const el = document.documentElement;
       if (el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); }
       else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
-      else if (el.mozRequestFullScreen) { el.mozRequestFullScreen(); }
-      else if (el.msRequestFullscreen) { el.msRequestFullscreen(); }
     }
-
-    // NUEVO: si el usuario sale de pantalla completa durante la experiencia, se intenta regresar
-    document.addEventListener("fullscreenchange", function () {
-      if (!esIOS && !document.fullscreenElement && estado.style.display === "block") {
-        activarPantallaCompleta();
-      }
-    });
 
     function iniciarDeteccion() {
       const arrancar = () => {
@@ -334,6 +333,7 @@
       reproductor.muted = false;
       reproductor.loop = true;
       reproductor.load();
+      
       const reproducir = () => {
         cargandoVideo.style.display = "none";
         creditoVideo.style.display = "block";
@@ -345,7 +345,6 @@
     }
 
     btnCerrar.addEventListener("click", function () {
-      if (!esIOS) activarPantallaCompleta(); // NUEVO: recuperar pantalla completa al cerrar el video
       reproductor.pause();
       reproductor.removeAttribute("src");
       reproductor.load();
@@ -356,15 +355,9 @@
       marca.style.display = "block";
       estado.style.display = "block";
       estado.textContent = "🔍 Apunta a otra foto...";
-      setTimeout(() => { reproduciendo = false; }, 800);
+      // Reducido a 300ms para agilizar la fluidez
+      setTimeout(() => { reproduciendo = false; }, 300);
     });
-
-    // NUEVO: registra el service worker (Chrome lo usa para ofrecer "Instalar aplicación")
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-      });
-    }
   </script>
 
 </body>
