@@ -157,8 +157,6 @@
     <div class="logo">JUD. de Capacitación</div>
     <div class="dep">SEDESA · Secretaría de Salud Pública de la Ciudad de México</div>
     <div class="nombre-expo">Ecos de la Revolución: Memoria Viva</div>
-    <h2>📝 Registro de participantes</h2>
-    <div class="dep">SEDESA<br>Secretaría de Salud Pública de la Ciudad de México</div>
     <div class="giro">📱</div>
     <div class="instru">Para una mejor experiencia, coloca tu celular en posición HORIZONTAL</div>
     <button id="btnIniciar">▶ INICIAR ESCANEO</button>
@@ -245,11 +243,18 @@
         area: area.value.trim()
       };
 
-      fetch(URL_GUARDADO, {
-        method: "POST", mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(datos)
-      }).finally(() => {
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Timeout")), 5000)
+      );
+
+      Promise.race([
+        fetch(URL_GUARDADO, {
+          method: "POST", mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(datos)
+        }),
+        timeoutPromise
+      ]).catch(() => {}).finally(() => {
         registro.style.display = "none";
         inicio.style.display = "flex";
       });
@@ -264,42 +269,36 @@
 
     btnIniciar.addEventListener("click", function () {
       if (!esIOS) activarPantallaCompleta();
+      
       reproductor.muted = true;
-      reproductor.play().then(() => { reproductor.pause(); reproductor.muted = false; }).catch(()=>{ reproductor.muted = false; });
+      reproductor.play().then(() => { 
+        reproductor.pause(); 
+        reproductor.muted = false; 
+      }).catch(()=>{ reproductor.muted = false; });
+      
       inicio.style.display = "none";
       marca.style.display = "block";
       estado.style.display = "block";
       estado.textContent = "⏳ Iniciando cámara...";
+      
       iniciarDeteccion();
 
-      // CORRECCIÓN CLAVE PARA IOS / IPHONE:
-      // Forzar un "resize" del navegador y del canvas para corregir el zoom de 1/4 de pantalla
+      // Ajuste seguro de video nativo para iOS sin romper el bucle de MindAR
       setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-        if (escena && escena.resize) {
-          escena.resize();
-        }
-      }, 400);
-
-      // Segundo reintento por si el DOM de Safari tarda en estabilizar el stream de video
-      setTimeout(() => {
-        window.dispatchEvent(new Event('resize'));
-      }, 1000);
+        ajustarCamaraIOS();
+      }, 500);
     });
-    
+
     function activarPantallaCompleta() {
       const el = document.documentElement;
       if (el.requestFullscreen) { el.requestFullscreen().catch(()=>{}); }
       else if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); }
-      else if (el.mozRequestFullScreen) { el.mozRequestFullScreen(); }
-      else if (el.msRequestFullscreen) { el.msRequestFullscreen(); }
     }
 
     function iniciarDeteccion() {
       const arrancar = () => {
         escena.systems["mindar-image-system"].start();
         estado.textContent = "🔍 Apunta a una foto...";
-        setTimeout(ajustarCamaraIOS, 800);
       };
       if (escena.hasLoaded) arrancar();
       else escena.addEventListener("loaded", arrancar);
@@ -320,9 +319,13 @@
         if (v.id !== "reproductor") {
           v.setAttribute("playsinline", "");
           v.setAttribute("webkit-playsinline", "");
-          v.style.position = "fixed"; v.style.top = "0"; v.style.left = "0";
-          v.style.width = "100vw"; v.style.height = "100vh";
-          v.style.objectFit = "cover"; v.style.zIndex = "0";
+          v.style.position = "fixed"; 
+          v.style.top = "0"; 
+          v.style.left = "0";
+          v.style.width = "100vw"; 
+          v.style.height = "100vh";
+          v.style.objectFit = "cover"; 
+          v.style.zIndex = "0";
           v.play && v.play().catch(()=>{});
         }
       });
@@ -339,6 +342,7 @@
       reproductor.muted = false;
       reproductor.loop = true;
       reproductor.load();
+      
       const reproducir = () => {
         cargandoVideo.style.display = "none";
         creditoVideo.style.display = "block";
