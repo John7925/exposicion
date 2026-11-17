@@ -217,6 +217,14 @@
     const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+    // COMPROBAR SI YA ESTÁ REGISTRADO PREVIAMENTE (PERSISTENCIA)
+    window.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("sedesa_registrado") === "true") {
+        if (registro) registro.style.display = "none";
+        if (inicio) inicio.style.display = "flex";
+      }
+    });
+
     function validarRegistro() {
       const correoOk = /\S+@\S+\.\S+/.test(correo.value.trim());
       const ok = correoOk && nombre.value.trim() && primerApellido.value.trim()
@@ -255,6 +263,10 @@
         }),
         timeoutPromise
       ]).catch(() => {}).finally(() => {
+        // GUARDAR ESTADO EN LOCALSTORAGE
+        localStorage.setItem("sedesa_registrado", "true");
+        localStorage.setItem("sedesa_correo", correo.value.trim());
+
         registro.style.display = "none";
         inicio.style.display = "flex";
       });
@@ -283,7 +295,6 @@
       
       iniciarDeteccion();
 
-      // Ajuste seguro de video nativo para iOS sin romper el bucle de MindAR
       setTimeout(() => {
         ajustarCamaraIOS();
       }, 500);
